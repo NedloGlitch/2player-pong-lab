@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en" style="width: 100%; height: 100%; margin: 0; padding:0; overflow:hidden;">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+
+  <title>My blog</title>
+  <%var scoreP1 = 0;%>
+  <%var scoreP2 = 0;%>
+  <script type="text/javascript">
+    window.onload = window.onresize = function () {
+      var canvas = document.getElementById('gameCanvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      //ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+      //ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    }
+    var x = 15;
+    var y = 15;
+    var SinVal = 0;
+    var ballRadius = 10;
+    var wx = window.innerWidth / 5;
+    var wy = window.innerHeight / 10;
+    var bx = wx * 2
+    var by = wy * 2
+    var bdx = 2;
+    var bdy = 2;
+    var paddleHeight = 10;
+    var paddleWidth = 75;
+    var paddleX = (window.innerWidth / 2 - paddleWidth);
+    var paddleY = (window.innerHeight - wy * 2.5);
+    var paddleX2 = (window.innerWidth / 2 - paddleWidth);
+    var paddleY2 = (wy * 1.35);
+    var rightP1 = false;
+    var leftP1 = false;
+    var rightP2 = false;
+    var leftP2 = false;
+    var paddle1Style = "#0044DD";
+    var paddle2Style = "#8844DD";
+    var scoreP1 = 0;
+    var scoreP2 = 0;
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+    function keyDownHandler(e) {
+      if (e.key == "Right" || e.key == "ArrowRight") {
+        rightP1 = true;
+      }
+      if (e.key == "Left" || e.key == "ArrowLeft") {
+        leftP1 = true;
+      }
+      if (e.key == "d") {
+        rightP2 = true;
+      }
+      if (e.key == "a") {
+        leftP2 = true;
+      }
+    }
+
+    function keyUpHandler(e) {
+      if (e.key == "Right" || e.key == "ArrowRight") {
+        rightP1 = false;
+      }
+      if (e.key == "Left" || e.key == "ArrowLeft") {
+        leftP1 = false;
+      }
+      if (e.key == "d") {
+        rightP2 = false;
+      }
+      if (e.key == "a") {
+        leftP2 = false;
+      }
+    }
+
+    function onStart() {
+      document.getElementById('log_in_pop').style.display = 'none'
+      document.getElementById('start_menu').style.display = 'none'
+      var interval = setInterval(draw, 16.7);
+    }
+  </script>
+
+  <script type="application/javascript">
+    function drawBackground(ctx, SinVar) {
+      var SinPulse = (5 + 0.15 * Math.sin(SinVal + (SinVar / 400)));
+      ctx.beginPath();
+      ctx.fillStyle = '#E5FFFF';
+      ctx.fillRect(x + 25 * (5.5 - SinPulse), y + 25 * (5.5 - SinPulse), 35 * SinPulse, 35 * SinPulse);
+      ctx.fill();
+      ctx.closePath();
+    }
+    function drawBall(ctx) {
+      ctx.beginPath();
+      ctx.arc(bx, by, ballRadius, 0, Math.PI * 2);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+    function drawPaddle(ctx) {
+      ctx.beginPath();
+      ctx.rect(paddleX, paddleY, paddleWidth, paddleHeight);
+      ctx.fillStyle = paddle1Style;
+      ctx.fill();
+      ctx.closePath();
+      ctx.beginPath();
+      ctx.rect(paddleX2, paddleY2, paddleWidth, paddleHeight);
+      ctx.fillStyle = paddle2Style;
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function BackGroundHandler(canvas, ctx) {
+      for (var j = canvas.height; j > 0; j = j - 200) {
+        for (var i = canvas.width; i > 0; i = i - 200) {
+          drawBackground(ctx, i + j * 2);
+          x = x + 200
+        }
+        x = 15;
+        y = y + 200
+      }
+      y = 15;
+      if (SinVal > 90) SinVal = 0;
+      SinVal = SinVal + 0.02;
+    }
+
+    function movement(ctx) {
+      if (by + bdy > paddleY - 4 && by + bdy < paddleY + 16) {
+        if (bx > paddleX && bx <= paddleX + paddleWidth - 50) {
+          bdy = -Math.abs(bdy);
+          bdx = bdx - 0.25
+        }
+        else if (bx > paddleX + paddleWidth - 50 && bx < paddleX + paddleWidth - 25) {
+          bdy = -Math.abs(bdy);
+        }
+        else if (bx >= paddleX + paddleWidth - 25 && bx < paddleX + paddleWidth) {
+          bdy = -Math.abs(bdy);
+          bdx = bdx + 0.25
+        }
+      }
+      else if (by + bdy > paddleY2 - 4 && by + bdy < paddleY2 + 16) {
+        if (bx > paddleX2 && bx <= paddleX2 + paddleWidth - 50) {
+          bdy = Math.abs(bdy);
+          bdx = bdx - 0.25
+        }
+        else if (bx > paddleX2 + paddleWidth - 50 && bx < paddleX2 + paddleWidth - 25) {
+          bdy = Math.abs(bdy);
+        }
+        else if (bx >= paddleX2 + paddleWidth - 25 && bx < paddleX2 + paddleWidth) {
+          bdy = Math.abs(bdy);
+          bdx = bdx + 0.25
+        }
+      }
+      if (by + bdy < wy + 5) {
+        bx = wx * 3
+        by = wy * 6
+        bdx = -2;
+        bdy = -2;
+        document.getElementById("P1S").innerHTML = scoreP1=scoreP1+1
+        alert("blue won")
+        clearInterval(interval);
+        
+      }
+      if (by + bdy > window.innerHeight - wy * 2 - ballRadius) {
+        bx = wx * 2
+        by = wy * 2
+        bdx = 2;
+        bdy = 2;
+        document.getElementById("P2S").innerHTML = scoreP2=scoreP2+1
+        alert("purple won")
+        clearInterval(interval);
+        
+      }
+
+      if (bx + bdx > window.innerWidth - wx - ballRadius || bx + bdx < wx + ballRadius) {
+        bdx = -bdx;
+      }
+      bx += bdx;
+      by += bdy;
+
+    }
+    function draw() {
+      var canvas = document.getElementById('gameCanvas');
+      var ctx = canvas.getContext('2d');
+      if (bdx < 4) bdx = bdx + bdx * 0.001; else bdx = bdx * 0.99;
+      if (bdy < 4) bdy = bdy + bdy * 0.001; else bdy = bdy * 0.99;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      BackGroundHandler(canvas, ctx);
+      ctx.strokeStyle = "#888888";
+      ctx.strokeRect(wx, wy, canvas.width - wx * 2, canvas.height - wy * 3)
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.fillRect(wx, wy, canvas.width - wx * 2, canvas.height - wy * 3)
+      movement(ctx);
+      drawBall(ctx);
+      drawPaddle(ctx);
+      if (rightP1) {
+        if (paddleX + 7 + paddleWidth < canvas.width - wx) {
+          paddleX += 7;
+        }
+      }
+      else if (leftP1) {
+        if (paddleX - 7 > wx) {
+          paddleX -= 7;
+        }
+      }
+      if (rightP2) {
+        if (paddleX2 + 7 + paddleWidth < canvas.width - wx) {
+          paddleX2 += 7;
+        }
+      }
+      else if (leftP2) {
+        if (paddleX2 - 7 > wx) {
+          paddleX2 -= 7;
+        }
+      }
+    }
+
+  </script>
+
+</head>
+
+<body style="width: 100%; height: 100%; margin: 0; padding:0; overflow:hidden;">
+  <%- include("partials/navbar.ejs") %>
+    <% if (locals.currentUser == null) { %> 
+    <div id="log_in_pop" style="position: fixed; border-radius: 10px; top: 30%; left: 25%;
+      background-color: #c7ffff; padding: 30px; width: 48%; z-index: 100; display:fixed"> 
+      <h1>Want to log in?</h1>
+      <p class="lead">It's free, and you'll get some features, like customization</p>
+      <hr class="py-3">
+      <a class="btn btn-primary mr-4" style="width:110px" href="/login" role="button">Login</a>
+      <a href="#" onclick="onStart()">I'm fine, let us play</a>
+    </div><% } else { %>  <div id="log_in_pop" style="display:none" ></div> <% } %>
+      <a class="btn btn-primary" style="width:15%;
+      position: fixed;  top: 40%; left: 42%;
+   background-color: #c7ffff; padding: 30px; ;z-index: 20;" id="start_menu" onclick="onStart()" role="button">Start!</a>
+    
+    <h1 style="position: fixed;top: 40%; left: 5%"> Player 1<br>(Arrows)</h1>
+    <h1 style="position: fixed;top: 40%; left: 85%">Player 2<br>(WASD)</h1>
+    <h1 style="position: fixed;top: 52%; left: 9%" id="P1S">0</h1>
+    <h1 style="position: fixed;top: 52%; left: 89%" id="P2S">0</h1>
+
+    <canvas id="gameCanvas" style="background-color: white;  position:inherit;  left:0;  top:0; "></canvas>
+
+    <!-- JavaScript -->
+
+    <script src="/jquery/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>
